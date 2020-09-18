@@ -1,3 +1,8 @@
-fn main() {
-    println!("Hello, world!");
+fn main()
+{
+    loop
+    {
+        println!("Hello, temporary gameplay loop");
+    }
+
 }
