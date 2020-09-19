@@ -1,27 +1,22 @@
-use std::time::{Duration, Instant};
+use std::time::{Duration};
 use std::thread;
+mod tick;
 
-const ONE_SECOND_IN_MILLISECONDS: u64 = 1000;
-
-// Updates per second
-const PHYS_TICK: i8 = 20;
-const TICK_TIME: i8 = 20;
-
+pub use tick::{tickPhysics, tickEngine};
 
 fn main()
 {
-    // move ticks to separate threads so I can use sleep(ONE_SECOND_IN_MICROSECONDS/PHYS_TICK)
-    let mut oldNow = Instant::now();
-    loop
-    {
-        thread::sleep(Duration::from_millis(ONE_SECOND_IN_MILLISECONDS/TICK_TIME as u64));
 
-        let t = Instant::now().duration_since(oldNow);
-        println!("ticked: {:?}", t);
+    let mut phys = tickPhysics::new();
+    let mut eng = tickEngine::new();
+    phys.start();
+    eng.start();
+    thread::sleep(Duration::from_secs(2));
+    phys.stop();
+    eng.stop();
 
+    println!("Exiting!");
 
-
-        oldNow = Instant::now();
-    }
+    return;
 
 }
