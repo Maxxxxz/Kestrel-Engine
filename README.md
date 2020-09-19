@@ -3,7 +3,6 @@
 This is the repo for the Kestrel Engine.
 
 # todo
-* finish basic loop with proper ticking (for use later)
 * gather keypresses
 * get mouse information
 * begin graphics 😳
