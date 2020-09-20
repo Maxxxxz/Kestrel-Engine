@@ -11,7 +11,18 @@ fn main()
     let mut eng = tickEngine::new();
     phys.start();
     eng.start();
-    thread::sleep(Duration::from_secs(2));
+    
+    'game: loop
+    {
+
+        // gather user inputs here somehow
+
+        if false
+        {
+            break 'game;
+        }
+    }
+
     phys.stop();
     eng.stop();
 
