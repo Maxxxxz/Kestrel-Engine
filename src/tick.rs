@@ -66,7 +66,7 @@ impl tickPhysics
                 }
                 thread::sleep(Duration::from_millis(ONE_SECOND_IN_MILLISECONDS/PHYS_TICK));
                 let t = Instant::now().duration_since(oldNow);
-                println!("Physics tick: {:?}", t);
+                // println!("Physics tick: {:?}", t);
                 oldNow = Instant::now();
             }
         });
@@ -104,7 +104,7 @@ impl tickEngine
                 }
                 thread::sleep(Duration::from_millis(ONE_SECOND_IN_MILLISECONDS/TICK_TIME));
                 let t = Instant::now().duration_since(oldNow);
-                println!("Engine tick: {:?}", t);
+                // println!("Engine tick: {:?}", t);
                 oldNow = Instant::now();
             }
         });
