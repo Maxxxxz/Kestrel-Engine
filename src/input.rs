@@ -25,6 +25,15 @@ pub struct InputState
     pub space_Active: bool,
 }
 
+pub enum KestrelKey
+{
+    A = 0,
+    D = 1,
+    S = 2,
+    W = 3,
+    
+}
+
 impl InputState
 {
     pub fn new() -> InputState
@@ -87,51 +96,51 @@ pub fn handle_window_event(window: &mut glfw::Window, event: glfw::WindowEvent, 
         }
         glfw::WindowEvent::Key(Key::W, _, Action::Press, _) =>
         {
-            println!("W has been pressed!")
+            // println!("W has been pressed!")
         }
         glfw::WindowEvent::Key(Key::W, _, Action::Repeat, _) =>
         {
-            println!("W is being held!")
+            // println!("W is being held!")
         }
         glfw::WindowEvent::Key(Key::W, _, Action::Release, _) =>
         {
-            println!("W has been released!")
+            // println!("W has been released!")
         }
         glfw::WindowEvent::Key(Key::A, _, Action::Press, _) =>
         {
-            println!("A has been pressed!")
+            // println!("A has been pressed!")
         }
         glfw::WindowEvent::Key(Key::A, _, Action::Repeat, _) =>
         {
-            println!("A is being held!")
+            // println!("A is being held!")
         }
         glfw::WindowEvent::Key(Key::A, _, Action::Release, _) =>
         {
-            println!("A has been released!")
+            // println!("A has been released!")
         }
         glfw::WindowEvent::Key(Key::S, _, Action::Press, _) =>
         {
-            println!("S has been pressed!")
+            // println!("S has been pressed!")
         }
         glfw::WindowEvent::Key(Key::S, _, Action::Repeat, _) =>
         {
-            println!("S is being held!")
+            // println!("S is being held!")
         }
         glfw::WindowEvent::Key(Key::S, _, Action::Release, _) =>
         {
-            println!("S has been released!")
+            // println!("S has been released!")
         }
         glfw::WindowEvent::Key(Key::D, _, Action::Press, _) =>
         {
-            println!("D has been pressed!")
+            // println!("D has been pressed!")
         }
         glfw::WindowEvent::Key(Key::D, _, Action::Repeat, _) =>
         {
-            println!("D is being held!")
+            // println!("D is being held!")
         }
         glfw::WindowEvent::Key(Key::D, _, Action::Release, _) =>
         {
-            println!("D has been released!")
+            // println!("D has been released!")
         }
         _ => {}
     }

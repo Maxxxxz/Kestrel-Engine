@@ -43,12 +43,17 @@ fn main()
             quit = handle_window_event(&mut window, event, &mut inpState);
         }
 
+        // This line lets me quit for reasons other than
+        // the window needing to close
+        quit = quit || window.should_close();
+        
         if quit
         {
             break 'game;
         }
     }
 
+    window.close();
     phys.stop();
     eng.stop();
     
