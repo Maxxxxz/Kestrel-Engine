@@ -1,4 +1,5 @@
-use glfw::{Action, Context, Key};
+use glfw::{Action, Context, Key, MouseButton};
+
 
 // create consts for each key to properly modify the inputstate unsigned integers
 
@@ -25,13 +26,35 @@ pub struct InputState
     pub space_Active: bool,
 }
 
-pub enum KestrelKey
+// Kestrel Standard Key (KSK)
+// The "shift" of each key
+// When key is A, shift 0 times 
+// and check if the 0th bit is set
+pub enum KSK
 {
     A = 0,
     D = 1,
     S = 2,
     W = 3,
-    
+}
+
+// Kestrel Modifier Key (KMK)
+pub enum KMK
+{
+    LShift = 0,
+    RShift = 1,
+    LControl = 2,
+    RControl = 3,
+}
+
+// Kestrel Mouse Buttons (KMB)
+pub enum KMB
+{
+    M1 = 0,
+    M2 = 1,
+    M3 = 2,
+    M4 = 3,
+    M5 = 4,
 }
 
 impl InputState
@@ -87,8 +110,42 @@ impl InputState
 
 pub fn handle_window_event(window: &mut glfw::Window, event: glfw::WindowEvent, inState: &mut InputState) -> bool
 {
+
+    // How to reduce the size of this function?
+    // Maybe match event, then store the 4 
+    // parts of the Key Event, then convert Key to
+    // it's respective kestrel key?
+
     match event
     {
+        glfw::WindowEvent::MouseButton(MouseButton::Button1, Action::Press, _) =>
+        {
+            inState.mouse_button_press += inState.mouse_button_press | (1 << KMB::M1 as u64);
+            println!("Mouse press: {}", inState.mouse_button_press);
+        }
+        glfw::WindowEvent::MouseButton(MouseButton::Button1, Action::Repeat, _) =>
+        {
+            let shift = (1 << KMB::M1 as u16);
+            
+            if (inState.mouse_button_held | shift) != 1
+            {
+                inState.mouse_button_held += inState.mouse_button_held | shift;
+            }
+            println!("Mouse hold: {}", inState.mouse_button_press);
+        }
+        glfw::WindowEvent::MouseButton(MouseButton::Button1, Action::Release, _) =>
+        {
+            let shift = (1 << KMB::M1 as u16);
+
+            inState.mouse_button_press -= inState.mouse_button_press | shift;
+
+            // only increment key ONCE when held
+            if (inState.mouse_button_held & shift) != 0
+            {
+                inState.mouse_button_held = inState.mouse_button_held | shift;
+            }
+            println!("Mouse release: {}", inState.mouse_button_press);
+        }
         glfw::WindowEvent::Key(Key::Escape, _, Action::Press, _) =>
         {
             window.set_should_close(true);
@@ -97,52 +154,75 @@ pub fn handle_window_event(window: &mut glfw::Window, event: glfw::WindowEvent, 
         glfw::WindowEvent::Key(Key::W, _, Action::Press, _) =>
         {
             // println!("W has been pressed!")
+            inState.standard_keys_press += inState.standard_keys_press | (1 << KSK::W as u64);
+            println!("press: {}", inState.standard_keys_press);
         }
         glfw::WindowEvent::Key(Key::W, _, Action::Repeat, _) =>
         {
             // println!("W is being held!")
+
+            let shift = (1 << KSK::W as u64);
+            // only increment key ONCE when held
+            if (inState.standard_keys_held | shift) != 1
+            {
+                inState.standard_keys_held = inState.standard_keys_held | shift;
+            }
+            println!("held: {}", inState.standard_keys_held);
         }
         glfw::WindowEvent::Key(Key::W, _, Action::Release, _) =>
         {
-            // println!("W has been released!")
+
+            inState.standard_keys_press -= inState.standard_keys_press | (1 << KSK::W as u64);
+
+            // println!("held is {}", (inState.standard_keys_held & (1 << KestrelKey::W as u64) != 0));
+            if (inState.standard_keys_held & (1 << KSK::W as u64) != 0)
+            {
+                inState.standard_keys_held -= inState.standard_keys_held | (1 << KSK::W as u64);
+            }
+
+            println!("press: {}", inState.standard_keys_press);
+            println!("held: {}", inState.standard_keys_held);
         }
         glfw::WindowEvent::Key(Key::A, _, Action::Press, _) =>
         {
-            // println!("A has been pressed!")
+            
         }
         glfw::WindowEvent::Key(Key::A, _, Action::Repeat, _) =>
         {
-            // println!("A is being held!")
+            
         }
         glfw::WindowEvent::Key(Key::A, _, Action::Release, _) =>
         {
-            // println!("A has been released!")
+            
         }
         glfw::WindowEvent::Key(Key::S, _, Action::Press, _) =>
         {
-            // println!("S has been pressed!")
+            
         }
         glfw::WindowEvent::Key(Key::S, _, Action::Repeat, _) =>
         {
-            // println!("S is being held!")
+            
         }
         glfw::WindowEvent::Key(Key::S, _, Action::Release, _) =>
         {
-            // println!("S has been released!")
+            
         }
         glfw::WindowEvent::Key(Key::D, _, Action::Press, _) =>
         {
-            // println!("D has been pressed!")
+            
         }
         glfw::WindowEvent::Key(Key::D, _, Action::Repeat, _) =>
         {
-            // println!("D is being held!")
+            
         }
         glfw::WindowEvent::Key(Key::D, _, Action::Release, _) =>
         {
-            // println!("D has been released!")
+            
         }
-        _ => {}
+        _ => 
+        {
+            println!("{:?}", event);
+        }
     }
     return false;
 }
