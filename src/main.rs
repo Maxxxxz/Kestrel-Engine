@@ -7,7 +7,7 @@ mod input;
 
 use glfw::{Action, Context, Key};
 use tick::{tickPhysics, tickEngine};
-use input::{handle_window_event, InputState};
+use input::{handleWindowEvent, InputState};
 
 fn main()
 {
@@ -47,7 +47,7 @@ fn main()
         
         glfw.poll_events();
         for (_, event) in glfw::flush_messages(&events) {
-            quit = handle_window_event(&mut window, event, &mut inpState);
+            quit = handleWindowEvent(&mut window, event, &mut inpState);
         }
 
         // This line lets me quit for reasons other than

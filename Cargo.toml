@@ -12,3 +12,4 @@ git = "https://github.com/bjz/glfw-rs.git"
 default-features = false
 
 [dependencies]
+num-traits = "0.2.12"

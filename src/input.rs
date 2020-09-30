@@ -1,3 +1,4 @@
+use num_traits::WrappingShl;
 use glfw::{Action, Context, Key, MouseButton};
 
 
@@ -108,7 +109,47 @@ impl InputState
     }
 }
 
-pub fn handle_window_event(window: &mut glfw::Window, event: glfw::WindowEvent, inState: &mut InputState) -> bool
+// $key values will NEVER be higher than 63, but rust insists
+// on blocking this due to overflow, therefore I must use this.
+// https://docs.rs/num-traits/0.2.12/num_traits/ops/wrapping/trait.WrappingShl.html
+macro_rules! key_used {
+    (press => $key:expr, $state:expr) => {
+        let shift: u64 = WrappingShl::wrapping_shl(&1u64, $key as u32);
+        
+        $state.standard_keys_press += $state.standard_keys_press | shift;
+        println!("press: {}", $state.standard_keys_press);
+    };
+    (hold => $key:expr, $state:expr) => {
+        let shift: u64 = WrappingShl::wrapping_shl(&1u64, $key as u32);
+        
+        // only increment key ONCE when held
+        let tempState = ($state.standard_keys_held | shift);
+        if tempState != 1
+        {
+            $state.standard_keys_held = tempState;
+        }
+
+        println!("held: {}", $state.standard_keys_held);
+    };
+    (release => $key:expr, $state:expr) => {    // bug here somehow?
+        let shift: u64 = WrappingShl::wrapping_shl(&1u64, $key as u32);
+        println!("subtracting {} from {}", shift, $state.standard_keys_press);
+        $state.standard_keys_press -= $state.standard_keys_press | shift;
+
+        // println!("held is {}", (inState.standard_keys_held & (1 << KestrelKey::W as u64) != 0));
+        let tempState = ($state.standard_keys_held | shift);
+        if ($state.standard_keys_held & shift != 0)
+        {
+            println!("subtracting {} from {}", shift, $state.standard_keys_held);
+            $state.standard_keys_held -= tempState;
+        }
+
+        println!("press: {}", $state.standard_keys_press);
+        println!("held: {}", $state.standard_keys_held);
+    };
+}
+
+pub fn handleWindowEvent(window: &mut glfw::Window, event: glfw::WindowEvent, inState: &mut InputState) -> bool
 {
 
     // How to reduce the size of this function?
@@ -151,78 +192,19 @@ pub fn handle_window_event(window: &mut glfw::Window, event: glfw::WindowEvent, 
             window.set_should_close(true);
             return window.should_close();
         }
-        glfw::WindowEvent::Key(Key::W, _, Action::Press, _) =>
-        {
-            // println!("W has been pressed!")
-            inState.standard_keys_press += inState.standard_keys_press | (1 << KSK::W as u64);
-            println!("press: {}", inState.standard_keys_press);
-        }
-        glfw::WindowEvent::Key(Key::W, _, Action::Repeat, _) =>
-        {
-            // println!("W is being held!")
-
-            let shift = (1 << KSK::W as u64);
-            // only increment key ONCE when held
-            if (inState.standard_keys_held | shift) != 1
-            {
-                inState.standard_keys_held = inState.standard_keys_held | shift;
-            }
-            println!("held: {}", inState.standard_keys_held);
-        }
-        glfw::WindowEvent::Key(Key::W, _, Action::Release, _) =>
-        {
-
-            inState.standard_keys_press -= inState.standard_keys_press | (1 << KSK::W as u64);
-
-            // println!("held is {}", (inState.standard_keys_held & (1 << KestrelKey::W as u64) != 0));
-            if (inState.standard_keys_held & (1 << KSK::W as u64) != 0)
-            {
-                inState.standard_keys_held -= inState.standard_keys_held | (1 << KSK::W as u64);
-            }
-
-            println!("press: {}", inState.standard_keys_press);
-            println!("held: {}", inState.standard_keys_held);
-        }
-        glfw::WindowEvent::Key(Key::A, _, Action::Press, _) =>
-        {
-            
-        }
-        glfw::WindowEvent::Key(Key::A, _, Action::Repeat, _) =>
-        {
-            
-        }
-        glfw::WindowEvent::Key(Key::A, _, Action::Release, _) =>
-        {
-            
-        }
-        glfw::WindowEvent::Key(Key::S, _, Action::Press, _) =>
-        {
-            
-        }
-        glfw::WindowEvent::Key(Key::S, _, Action::Repeat, _) =>
-        {
-            
-        }
-        glfw::WindowEvent::Key(Key::S, _, Action::Release, _) =>
-        {
-            
-        }
-        glfw::WindowEvent::Key(Key::D, _, Action::Press, _) =>
-        {
-            
-        }
-        glfw::WindowEvent::Key(Key::D, _, Action::Repeat, _) =>
-        {
-            
-        }
-        glfw::WindowEvent::Key(Key::D, _, Action::Release, _) =>
-        {
-            
-        }
-        _ => 
-        {
-            println!("{:?}", event);
-        }
+        glfw::WindowEvent::Key(Key::W, _, Action::Press, _) =>      {key_used!(press => KSK::W, inState);},
+        glfw::WindowEvent::Key(Key::W, _, Action::Repeat, _) =>     {key_used!(hold => KSK::W, inState);},
+        glfw::WindowEvent::Key(Key::W, _, Action::Release, _) =>    {key_used!(release => KSK::W, inState);},
+        glfw::WindowEvent::Key(Key::A, _, Action::Press, _) =>      {key_used!(press => KSK::A, inState);},
+        glfw::WindowEvent::Key(Key::A, _, Action::Repeat, _) =>     {key_used!(hold => KSK::A, inState);},
+        glfw::WindowEvent::Key(Key::A, _, Action::Release, _) =>    {key_used!(release => KSK::A, inState);},
+        glfw::WindowEvent::Key(Key::S, _, Action::Press, _) =>      {key_used!(press => Key::S, inState);},
+        glfw::WindowEvent::Key(Key::S, _, Action::Repeat, _) =>     {key_used!(hold => Key::S, inState);},
+        glfw::WindowEvent::Key(Key::S, _, Action::Release, _) =>    {key_used!(release => Key::S, inState);},
+        glfw::WindowEvent::Key(Key::D, _, Action::Press, _) =>      {key_used!(press => Key::D, inState);},
+        glfw::WindowEvent::Key(Key::D, _, Action::Repeat, _) =>     {key_used!(hold => Key::D, inState);},
+        glfw::WindowEvent::Key(Key::D, _, Action::Release, _) =>    {key_used!(release => Key::D, inState);},
+        _ =>                                                        println!("{:?}", event),
     }
     return false;
 }
