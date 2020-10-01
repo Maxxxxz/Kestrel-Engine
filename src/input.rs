@@ -115,33 +115,39 @@ impl InputState
 macro_rules! key_used {
     (press => $key:expr, $state:expr) => {
         let shift: u64 = WrappingShl::wrapping_shl(&1u64, $key as u32);
+
+        let tempstate1 = ($state.standard_keys_press | shift);
+        $state.standard_keys_press = tempstate1;
         
-        $state.standard_keys_press += $state.standard_keys_press | shift;
         println!("press: {}", $state.standard_keys_press);
+        println!("held: {}", $state.standard_keys_held);
     };
     (hold => $key:expr, $state:expr) => {
         let shift: u64 = WrappingShl::wrapping_shl(&1u64, $key as u32);
-        
+
         // only increment key ONCE when held
         let tempState = ($state.standard_keys_held | shift);
         if tempState != 1
         {
             $state.standard_keys_held = tempState;
         }
-
+        
+        println!("press: {}", $state.standard_keys_press);
         println!("held: {}", $state.standard_keys_held);
     };
     (release => $key:expr, $state:expr) => {    // bug here somehow?
         let shift: u64 = WrappingShl::wrapping_shl(&1u64, $key as u32);
-        println!("subtracting {} from {}", shift, $state.standard_keys_press);
-        $state.standard_keys_press -= $state.standard_keys_press | shift;
+        
+        let tempstate1 = ($state.standard_keys_press & shift);
+        
+        $state.standard_keys_press -= tempstate1;
 
-        // println!("held is {}", (inState.standard_keys_held & (1 << KestrelKey::W as u64) != 0));
-        let tempState = ($state.standard_keys_held | shift);
-        if ($state.standard_keys_held & shift != 0)
+        let tempState2 = ($state.standard_keys_held & shift);
+
+        println!("{}", (tempState2 != 0));
+        if (tempState2 != 0)
         {
-            println!("subtracting {} from {}", shift, $state.standard_keys_held);
-            $state.standard_keys_held -= tempState;
+            $state.standard_keys_held -= $state.standard_keys_held | shift;
         }
 
         println!("press: {}", $state.standard_keys_press);
@@ -198,12 +204,12 @@ pub fn handleWindowEvent(window: &mut glfw::Window, event: glfw::WindowEvent, in
         glfw::WindowEvent::Key(Key::A, _, Action::Press, _) =>      {key_used!(press => KSK::A, inState);},
         glfw::WindowEvent::Key(Key::A, _, Action::Repeat, _) =>     {key_used!(hold => KSK::A, inState);},
         glfw::WindowEvent::Key(Key::A, _, Action::Release, _) =>    {key_used!(release => KSK::A, inState);},
-        glfw::WindowEvent::Key(Key::S, _, Action::Press, _) =>      {key_used!(press => Key::S, inState);},
-        glfw::WindowEvent::Key(Key::S, _, Action::Repeat, _) =>     {key_used!(hold => Key::S, inState);},
-        glfw::WindowEvent::Key(Key::S, _, Action::Release, _) =>    {key_used!(release => Key::S, inState);},
-        glfw::WindowEvent::Key(Key::D, _, Action::Press, _) =>      {key_used!(press => Key::D, inState);},
-        glfw::WindowEvent::Key(Key::D, _, Action::Repeat, _) =>     {key_used!(hold => Key::D, inState);},
-        glfw::WindowEvent::Key(Key::D, _, Action::Release, _) =>    {key_used!(release => Key::D, inState);},
+        glfw::WindowEvent::Key(Key::S, _, Action::Press, _) =>      {key_used!(press => KSK::S, inState);},
+        glfw::WindowEvent::Key(Key::S, _, Action::Repeat, _) =>     {key_used!(hold => KSK::S, inState);},
+        glfw::WindowEvent::Key(Key::S, _, Action::Release, _) =>    {key_used!(release => KSK::S, inState);},
+        glfw::WindowEvent::Key(Key::D, _, Action::Press, _) =>      {key_used!(press => KSK::D, inState);},
+        glfw::WindowEvent::Key(Key::D, _, Action::Repeat, _) =>     {key_used!(hold => KSK::D, inState);},
+        glfw::WindowEvent::Key(Key::D, _, Action::Release, _) =>    {key_used!(release => KSK::D, inState);},
         _ =>                                                        println!("{:?}", event),
     }
     return false;
