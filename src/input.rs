@@ -11,6 +11,11 @@ pub struct InputState
     // I could simply modify and access an array for
     // pressed buttons and held buttons, along with modifiers
 
+    // Maybe this is overcomplicated, and I can simply
+    // update a bool array. It would be much simpler
+    // than bit shifting math. It would also be shorter
+    // and prone to less bugs.
+
     // What other key categories should I keep track of?
 
     pub standard_keys_press: u64,
@@ -116,18 +121,16 @@ macro_rules! key_used {
     (press => $key:expr, $state:expr) => {
         let shift: u64 = WrappingShl::wrapping_shl(&1u64, $key as u32);
 
-        let tempstate1 = ($state.standard_keys_press | shift);
-        $state.standard_keys_press = tempstate1;
+        let tempstate = ($state.standard_keys_press | shift);
+        $state.standard_keys_press = tempstate;
         
-        println!("press: {}", $state.standard_keys_press);
-        println!("held: {}", $state.standard_keys_held);
     };
     (hold => $key:expr, $state:expr) => {
         let shift: u64 = WrappingShl::wrapping_shl(&1u64, $key as u32);
 
         // only increment key ONCE when held
         let tempState = ($state.standard_keys_held | shift);
-        if tempState != 1
+        if tempState != 1 || $key as u32 == 0
         {
             $state.standard_keys_held = tempState;
         }
