@@ -7,7 +7,7 @@ mod input;
 
 use glfw::{Action, Context, Key};
 use tick::{tickPhysics, tickEngine};
-use input::{handle_window_event, InputState};
+use input::{handleWindowEvent, InputState};
 
 fn main()
 {
@@ -26,7 +26,10 @@ fn main()
     .expect("Failed to create GLFW window.");
 
     window.set_key_polling(true);
+    window.set_mouse_button_polling(true);
     window.make_current();
+
+    
 
     // while !window.should_close() {
 
@@ -38,17 +41,26 @@ fn main()
     'game: loop
     {
 
+        // Get cursor position
+        // let (xpos, ypos) = window.get_cursor_pos();
+        // println!("xpos: {} | ypos: {}", xpos, ypos);
+        
         glfw.poll_events();
         for (_, event) in glfw::flush_messages(&events) {
-            quit = handle_window_event(&mut window, event, &mut inpState);
+            quit = handleWindowEvent(&mut window, event, &mut inpState);
         }
 
+        // This line lets me quit for reasons other than
+        // the window needing to close
+        quit = quit || window.should_close();
+        
         if quit
         {
             break 'game;
         }
     }
 
+    window.close();
     phys.stop();
     eng.stop();
     
